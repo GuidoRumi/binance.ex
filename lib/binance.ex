@@ -64,6 +64,19 @@ defmodule Binance do
     end
   end
 
+  def get_candlesticks(symbol, interval) when is_binary(symbol) do
+    case HTTPClient.get_binance("/api/v3/klines?symbol=#{symbol}&interval=#{interval}") do
+      {:ok, data} ->
+
+        {:ok, Enum.map(data, fn cs ->
+          cs
+          |> parse_candlestick()
+          |> Binance.Candlestick.new()
+        end)}
+      err -> err
+    end
+  end
+
   @doc """
   Retrieves the current ticker information for the given trade pair.
 
@@ -608,5 +621,24 @@ defmodule Binance do
       {:ok, data} -> {:ok, Binance.Order.new(data)}
       err -> err
     end
+  end
+
+  defp parse_candlestick(candlestick) when is_list(candlestick) do
+    keys = [
+      :open_time,
+      :open,
+      :high,
+      :low,
+      :close,
+      :volume,
+      :close_time,
+      :quoted_volume,
+      :trades_quantity,
+      :taker_buy_volume,
+      :quoted_taker_buy_volume,
+      :ignore
+    ]
+    Enum.zip(keys, candlestick)
+    |> Map.new()
   end
 end
