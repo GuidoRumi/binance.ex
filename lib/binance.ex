@@ -78,8 +78,6 @@ defmodule Binance do
     end
 
     url = "/api/v3/klines?symbol=#{symbol}&interval=#{interval}" <> start_time <> end_time
-
-    IO.inspect url
     case HTTPClient.get_binance(url) do
       {:ok, data} ->
 
