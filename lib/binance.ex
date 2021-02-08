@@ -64,8 +64,23 @@ defmodule Binance do
     end
   end
 
-  def get_candlesticks(symbol, interval) when is_binary(symbol) do
-    case HTTPClient.get_binance("/api/v3/klines?symbol=#{symbol}&interval=#{interval}") do
+  def get_candlesticks(symbol, interval, opts \\ [] ) when is_binary(symbol) do
+    start_time = if st = Keyword.get(opts, :start_time) do
+      "&startTime=#{st}"
+    else
+      ""
+    end
+
+    end_time = if et = Keyword.get(opts, :end_time) do
+      "&endTime=#{et}"
+    else
+      ""
+    end
+
+    url = "/api/v3/klines?symbol=#{symbol}&interval=#{interval}" <> start_time <> end_time
+
+    IO.inspect url
+    case HTTPClient.get_binance(url) do
       {:ok, data} ->
 
         {:ok, Enum.map(data, fn cs ->
